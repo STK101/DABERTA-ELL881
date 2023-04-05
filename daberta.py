@@ -63,8 +63,8 @@ SCALER = GradScaler()
 
 # ----------------------------------------------------- CONFIGS -----------------------------------------------------
 
-INPUT_PATH = 'content/drive/MyDrive/ELL881/'
-OUTPUT_PATH = 'content/drive/MyDrive/ELL881/models/'
+INPUT_PATH = '/dataset/'
+OUTPUT_PATH = '/dataset/models/'
 
 TWEET_MAX_LEN = 185
 DEFINITION_MAX_LEN = 25
@@ -1294,7 +1294,7 @@ if __name__ == "__main__":
     # ------------------------------ READ DATASET ------------------------------ #
     
     train_dataset, train_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'train.csv', 
-                                                       definition_path='/content/DABERTA-ELL881/dataset/definition-encodings-roberta.pkl', 
+                                                       definition_path='/dataset/definition-encodings-roberta.pkl', 
                                                        tokenizer=TOKENIZER)
     print("\nTraining Data Loaded...")
 
