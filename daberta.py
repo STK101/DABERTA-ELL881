@@ -1294,7 +1294,7 @@ if __name__ == "__main__":
     # ------------------------------ READ DATASET ------------------------------ #
     
     train_dataset, train_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'train.csv', 
-                                                       definition_path='/dataset/definition-encodings-roberta.pkl', 
+                                                       definition_path='dataset/definition-encodings-roberta.pkl', 
                                                        tokenizer=TOKENIZER)
     print("\nTraining Data Loaded...")
 
