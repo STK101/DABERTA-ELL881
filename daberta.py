@@ -63,7 +63,7 @@ SCALER = GradScaler()
 
 # ----------------------------------------------------- CONFIGS -----------------------------------------------------
 
-INPUT_PATH = 'content/drive/MyDrive/ELL881'
+INPUT_PATH = 'content/drive/MyDrive/ELL881/'
 OUTPUT_PATH = 'content/drive/MyDrive/ELL881/models/'
 
 TWEET_MAX_LEN = 185
