@@ -1259,13 +1259,13 @@ def train(model,
         
         print("\nEpoch: {}\ttrain_loss: {}".format(epoch+1, train_loss))
         
-         train_label_idx, train_preds_idx, train_label_bio, train_preds_bio = getPredictions(train_preds,
+        train_label_idx, train_preds_idx, train_label_bio, train_preds_bio = getPredictions(train_preds,
                                                                                              train_preds, 
                                                                                              data_word_ids['train_word_ids'])
-         train_results = compute_metrics(train_label_bio, train_preds_bio)
-         print("Train Results: ", train_results)
+        train_results = compute_metrics(train_label_bio, train_preds_bio)
+        print("Train Results: ", train_results)
 
-         torch.save(model, 
+        torch.save(model, 
                     OUTPUT_PATH  +"DABERTa_epoch_" + str(epoch+1) + "_" + datetime.now().strftime('%d-%m-%Y-%H:%M') + ".pt")
         
         del train_loss
