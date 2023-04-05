@@ -64,7 +64,7 @@ SCALER = GradScaler()
 # ----------------------------------------------------- CONFIGS -----------------------------------------------------
 
 INPUT_PATH = 'dataset/'
-OUTPUT_PATH = 'dataset/models/'
+OUTPUT_PATH = 'dataset/'
 
 TWEET_MAX_LEN = 185
 DEFINITION_MAX_LEN = 25
