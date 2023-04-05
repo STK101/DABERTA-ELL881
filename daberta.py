@@ -63,8 +63,8 @@ SCALER = GradScaler()
 
 # ----------------------------------------------------- CONFIGS -----------------------------------------------------
 
-INPUT_PATH = 'dataset/'
-OUTPUT_PATH = 'models/'
+INPUT_PATH = 'content/drive/MyDrive/ELL881'
+OUTPUT_PATH = 'content/drive/MyDrive/ELL881/models/'
 
 TWEET_MAX_LEN = 185
 DEFINITION_MAX_LEN = 25
@@ -1259,14 +1259,14 @@ def train(model,
         
         print("\nEpoch: {}\ttrain_loss: {}".format(epoch+1, train_loss))
         
-#         train_label_idx, train_preds_idx, train_label_bio, train_preds_bio = getPredictions(train_preds,
-#                                                                                             train_preds, 
-#                                                                                             data_word_ids['train_word_ids'])
-#         train_results = compute_metrics(train_label_bio, train_preds_bio)
-#         print("Train Results: ", train_results)
-               
-#         torch.save(model, 
-#                    OUTPUT_PATH  +"DABERTa_epoch_" + str(epoch+1) + "_" + datetime.now().strftime('%d-%m-%Y-%H:%M') + ".pt")
+         train_label_idx, train_preds_idx, train_label_bio, train_preds_bio = getPredictions(train_preds,
+                                                                                             train_preds, 
+                                                                                             data_word_ids['train_word_ids'])
+         train_results = compute_metrics(train_label_bio, train_preds_bio)
+         print("Train Results: ", train_results)
+
+         torch.save(model, 
+                    OUTPUT_PATH  +"DABERTa_epoch_" + str(epoch+1) + "_" + datetime.now().strftime('%d-%m-%Y-%H:%M') + ".pt")
         
         del train_loss
         gc.collect()
@@ -1293,8 +1293,8 @@ if __name__ == "__main__":
     
     # ------------------------------ READ DATASET ------------------------------ #
     
-    train_dataset, train_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'CURT-samples.csv', 
-                                                       definition_path=INPUT_PATH + 'definition-encodings-roberta.pkl', 
+    train_dataset, train_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'train.csv', 
+                                                       definition_path='/content/DABERTA-ELL881/dataset/definition-encodings-roberta.pkl', 
                                                        tokenizer=TOKENIZER)
     print("\nTraining Data Loaded...")
 
