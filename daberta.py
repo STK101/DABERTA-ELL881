@@ -26,7 +26,7 @@ warnings.filterwarnings("ignore")
 import torch
 import torch.nn as nn
 
-from TorchCRF import CRF
+from torchcrf import CRF
 
 from torch.utils.data import (
     DataLoader, 
