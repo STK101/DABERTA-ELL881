@@ -1273,6 +1273,7 @@ def train(model,
                                                                                              val_preds, 
                                                                                              val_word_ids['train_word_ids'])
         val_results = (compute_metrics(val_label_bio, val_preds_bio))["F1"]
+        print("Train Results: ", val_results)
         if (len(val_losses) == 0):
             val_losses.append(val_results)
             torch.save(model, 
@@ -1317,6 +1318,7 @@ if __name__ == "__main__":
     val_dataset,val_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'dev.csv', 
                                                        definition_path='dataset/definition-encodings-roberta.pkl', 
                                                        tokenizer=TOKENIZER)
+    print("\nValidation Data Loaded...")
     gc.collect()  
     
     # ------------------------------ TRAINING SETUP ------------------------------ #
