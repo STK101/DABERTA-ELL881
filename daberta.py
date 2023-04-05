@@ -1273,7 +1273,7 @@ def train(model,
                                                                                              val_preds, 
                                                                                              val_word_ids['train_word_ids'])
         val_results = (compute_metrics(val_label_bio, val_preds_bio))["F1"]
-        print("Train Results: ", val_results)
+        print("Val Results: ", val_results)
         if (len(val_losses) == 0):
             val_losses.append(val_results)
             torch.save(model, 
