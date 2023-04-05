@@ -1238,7 +1238,9 @@ def train(model,
           tokenizer,
           train_data_loader,
           base_learning_rate,
-          data_word_ids):
+          data_word_ids,
+          val_data_loader,
+          val_word_ids):
     
     optimizer = prepare_for_training(model=model,
                                      base_learning_rate=base_learning_rate)
@@ -1253,20 +1255,35 @@ def train(model,
         train_losses.append(train_loss)
         
         # Compute Metrics
-        train_preds, train_preds = test_epoch(model,
+        train_true, train_preds = test_epoch(model,
                                               tokenizer,
                                               train_data_loader)
         
         print("\nEpoch: {}\ttrain_loss: {}".format(epoch+1, train_loss))
         
-        train_label_idx, train_preds_idx, train_label_bio, train_preds_bio = getPredictions(train_preds,
+        train_label_idx, train_preds_idx, train_label_bio, train_preds_bio = getPredictions(train_true,
                                                                                              train_preds, 
                                                                                              data_word_ids['train_word_ids'])
         train_results = compute_metrics(train_label_bio, train_preds_bio)
         print("Train Results: ", train_results)
-
-        torch.save(model, 
+        val_acc,val_true, val_preds = val_epoch(model,
+                                              tokenizer,
+                                              val_data_loader)
+        val_label_idx, val_preds_idx, val_label_bio, val_preds_bio = getPredictions(val_true,
+                                                                                             val_preds, 
+                                                                                             val_word_ids['train_word_ids'])
+        val_results = (compute_metrics(val_label_bio, val_preds_bio))["F1"]
+        if (len(val_losses) == 0):
+            val_losses.append(val_results)
+            torch.save(model, 
                     OUTPUT_PATH  +"DABERTa_epoch_" + str(epoch+1) + "_" + datetime.now().strftime('%d-%m-%Y-%H:%M') + ".pt")
+        else:
+            if (val_losses[-1] < val_results):
+                val_losses.append(val_results)
+                torch.save(model, 
+                    OUTPUT_PATH  +"DABERTa_epoch_" + str(epoch+1) + "_" + datetime.now().strftime('%d-%m-%Y-%H:%M') + ".pt")
+            # torch.save(model, 
+            #             OUTPUT_PATH  +"DABERTa_epoch_" + str(epoch+1) + "_" + datetime.now().strftime('%d-%m-%Y-%H:%M') + ".pt")
         
         del train_loss
         gc.collect()
@@ -1297,7 +1314,9 @@ if __name__ == "__main__":
                                                        definition_path='dataset/definition-encodings-roberta.pkl', 
                                                        tokenizer=TOKENIZER)
     print("\nTraining Data Loaded...")
-
+    val_dataset,val_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'dev.csv', 
+                                                       definition_path='dataset/definition-encodings-roberta.pkl', 
+                                                       tokenizer=TOKENIZER)
     gc.collect()  
     
     # ------------------------------ TRAINING SETUP ------------------------------ #
@@ -1305,12 +1324,18 @@ if __name__ == "__main__":
     data_word_ids = {
         'train_word_ids': train_word_ids
     }
+    val_word_ids = {
+        'train_word_ids': val_word_ids
+    }
+
     
     train(model=MODEL,
           tokenizer=TOKENIZER,
           train_data_loader=train_dataset,
           base_learning_rate=BASE_LEARNING_RATE,
-          data_word_ids=data_word_ids)
+          data_word_ids=data_word_ids,
+          val_data_loader=val_dataset,
+          val_word_ids= val_word_ids)
     
     print("Model Trained!")
     
