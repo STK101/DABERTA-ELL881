@@ -377,14 +377,14 @@ class DescNet(nn.Module):
                                                  key=definition_input,
                                                  value=definition_input)
             if (not remove):
-                print("Size of attention_out :" + str(attention_out.size()))
+                print("Size of attention_out :" + ' '.join(map(str, list(attention_out.size()))))
                 remove =True
             if defnet_out is None:
                 defnet_out = attention_out
             else:
                 defnet_out = torch.cat([defnet_out, attention_out], dim=-1)
         
-        print("Size of defnet_out :" + str(defnet_out.size()))
+        print("Size of defnet_out :" + ' '.join(map(str, list(defnet_out.size()))))
         
         output = self.fc(defnet_out)
         output = self.dropout_1(output)
