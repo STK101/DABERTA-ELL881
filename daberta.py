@@ -370,16 +370,22 @@ class DescNet(nn.Module):
                 definition_inputs: torch.tensor):   
         defnet_out = None
         definition_inputs = definition_inputs.permute(1, 0, 2, 3)
+        remove = False
         for definition_input in definition_inputs:
             definition_input = self.def_encoder(definition_input)[-1]
             attention_out = self.attention_layer(query=encoder_output, 
                                                  key=definition_input,
                                                  value=definition_input)
+            if (not remove):
+                print("Size of attention_out :" + int(attention_out.size()))
+                remove =True
             if defnet_out is None:
                 defnet_out = attention_out
             else:
                 defnet_out = torch.cat([defnet_out, attention_out], dim=-1)
-
+        
+        print("Size of defnet_out :" + int(defnet_out.size()))
+        
         output = self.fc(defnet_out)
         output = self.dropout_1(output)
         output = self.igm_layer(encoder_output, output)
