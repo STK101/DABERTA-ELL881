@@ -398,10 +398,10 @@ class DescNet(nn.Module):
         for i in range(0,768):
             cur_out = (torch.unsqueeze(defnet_out[:,:,:,i],-1)).float()
             print(cur_out.dtype)
-            cur_out =  (self.conv1)[i](cur_out)
-            cur_out =  (self.conv2)[i](cur_out)
-            cur_out =  (self.conv3)[i](cur_out)
-            cur_out =  (self.conv4)[i](cur_out)
+            cur_out =  (self.conv1)[i](cur_out.float()).float()
+            cur_out =  (self.conv2)[i](cur_out.float()).float()
+            cur_out =  (self.conv3)[i](cur_out.float()).float()
+            cur_out =  (self.conv4)[i](cur_out.float()).float()
             if output is None:
                 output = cur_out
             else:
