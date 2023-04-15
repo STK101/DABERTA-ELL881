@@ -357,6 +357,78 @@ class DescNet(nn.Module):
                                     centering_E=centering_E,
                                     centering_N=centering_N)
         self.igm_layer = IGM(dim=dim_model)
+        self.conv1 = nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (5,768), stride = 1,padding= (2,0))
+        self.conv2 = nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (3,768), stride = 1,padding= (1,0))
+        self.conv3 = nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN//2, kernel_size = (7,768), stride = 1,padding= (3,0))
+        self.conv4 = nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN//2,out_channels = 1, kernel_size = (7,768), stride = 1,padding= (3,0))
+        #self.fc = nn.Linear(CLAIM_DEFINITIONS_LEN * dim_model, dim_model)
+        self.dropout_1 = nn.Dropout(0.2)
+        self.dropout_2 = nn.Dropout(0.2)
+        
+        
+
+
+
+    def forward(self, 
+                encoder_output: torch.tensor,
+                definition_inputs: torch.tensor):   
+        defnet_out = [] #None
+        definition_inputs = definition_inputs.permute(1, 0, 2, 3)
+        remove = False
+
+        for definition_input in definition_inputs:
+            definition_input = self.def_encoder(definition_input)[-1]
+            attention_out = self.attention_layer(query=encoder_output, 
+                                                 key=definition_input,
+                                                 value=definition_input)
+            if (not remove):
+                print("Size of attention_out :" + ' '.join(map(str, list(attention_out.size()))))
+                remove =True
+            if defnet_out is None:
+                defnet_out = attention_out
+            else:
+                defnet_out.append(attention_out)
+                #defnet_out = torch.cat([defnet_out, attention_out], dim=-1)
+        
+
+        defnet_out = torch.stack(defnet_out) # 12 X 200 X 768 => 5X768 kernel (2,0 padding) | 3X786 Kernel (1,0) padding | 2*(7X786 Kernel (3,0) padding) => 12 to 6 and 6 to 1 down filtering | 
+        print("Size of defnet_out :" + ' '.join(map(str, list(defnet_out.size()))))
+        output = self.conv1(defnet_out)
+        output = self.conv2(defnet_out)
+        output = self.conv3(defnet_out)
+        output = self.conv4(defnet_out)
+        output = torch.squeeze(output)
+        output = self.dropout_1(output)
+        output = self.igm_layer(encoder_output, output)
+        output = self.dropout_2(output)
+        return output   
+
+'''
+class DescNet(nn.Module):
+
+    def __init__(self, 
+                 dim_model: int,
+                 multi_head: Optional[bool]=False,
+                 num_heads: Optional[int]=1,
+                 alpha: Optional[float]=1.0,
+                 beta: Optional[float]=1.0,
+                 scaling: Optional[bool]=False,
+                 centering_E: Optional[bool]=False,
+                 centering_N: Optional[bool]=False):
+        super(DescNet, self).__init__()
+        self.def_encoder = TransformerEncoder(d_model=dim_model, 
+                                              num_layers=2,
+                                              num_heads=4, 
+                                              dim_feedforward=dim_model)
+        self.attention_layer = CoDA(dim_model=dim_model,
+                                    multi_head=multi_head,
+                                    num_heads=num_heads,
+                                    alpha=alpha,
+                                    beta=beta,
+                                    scaling=scaling,
+                                    centering_E=centering_E,
+                                    centering_N=centering_N)
+        self.igm_layer = IGM(dim=dim_model)
         self.fc = nn.Linear(CLAIM_DEFINITIONS_LEN * dim_model, dim_model)
         self.dropout_1 = nn.Dropout(0.2)
         self.dropout_2 = nn.Dropout(0.2)
@@ -371,6 +443,7 @@ class DescNet(nn.Module):
         defnet_out = None
         definition_inputs = definition_inputs.permute(1, 0, 2, 3)
         remove = False
+
         for definition_input in definition_inputs:
             definition_input = self.def_encoder(definition_input)[-1]
             attention_out = self.attention_layer(query=encoder_output, 
@@ -384,15 +457,13 @@ class DescNet(nn.Module):
             else:
                 defnet_out = torch.cat([defnet_out, attention_out], dim=-1)
         
-        print("Size of defnet_out :" + ' '.join(map(str, list(defnet_out.size()))))
-        
+
         output = self.fc(defnet_out)
         output = self.dropout_1(output)
         output = self.igm_layer(encoder_output, output)
         output = self.dropout_2(output)
         return output   
-    
-    
+'''
 # ----------------------------------------------------- ROBERTA ENCODER -----------------------------------------------------
 
 class CustomRobertaEncoder(nn.Module):
