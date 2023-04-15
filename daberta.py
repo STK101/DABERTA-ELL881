@@ -357,10 +357,10 @@ class DescNet(nn.Module):
                                     centering_E=centering_E,
                                     centering_N=centering_N)
         self.igm_layer = IGM(dim=dim_model)
-        self.conv1 = nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (5,768), stride = 1,padding= (2,0))
-        self.conv2 = nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (3,768), stride = 1,padding= (1,0))
-        self.conv3 = nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN//2, kernel_size = (7,768), stride = 1,padding= (3,0))
-        self.conv4 = nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN//2,out_channels = 1, kernel_size = (7,768), stride = 1,padding= (3,0))
+        self.conv1 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (5,1), stride = 1,padding= (2,0))]*768
+        self.conv2 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (3,1), stride = 1,padding= (1,0))]*768
+        self.conv3 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN//2, kernel_size = (7,1), stride = 1,padding= (3,0))]*768
+        self.conv4 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN//2,out_channels = 1, kernel_size = (7,1), stride = 1,padding= (3,0))]*768
         #self.fc = nn.Linear(CLAIM_DEFINITIONS_LEN * dim_model, dim_model)
         self.dropout_1 = nn.Dropout(0.2)
         self.dropout_2 = nn.Dropout(0.2)
@@ -393,11 +393,18 @@ class DescNet(nn.Module):
 
         defnet_out = torch.stack(defnet_out) # 12 X 200 X 768 => 5X768 kernel (2,0 padding) | 3X786 Kernel (1,0) padding | 2*(7X786 Kernel (3,0) padding) => 12 to 6 and 6 to 1 down filtering | 
         print("Size of defnet_out :" + ' '.join(map(str, list(defnet_out.size()))))
-        defnet_out = torch.permute(defnet_out, (1,0,2,3))
-        output = self.conv1(defnet_out)
-        output = self.conv2(output)
-        output = self.conv3(output)
-        output = self.conv4(output)
+        defnet_out = torch.permute(defnet_out, (1,0,2,3))#12 X 200 X 1 inputs 
+        output = None
+        for i in range(0,768):
+            cur_out = torch.unsqueeze(defnet_out[:,:,:,i],-1)
+            cur_out =  (self.conv1)[i](cur_out)
+            cur_out =  (self.conv2)[i](cur_out)
+            cur_out =  (self.conv3)[i](cur_out)
+            cur_out =  (self.conv4)[i](cur_out)
+            if output is None:
+                output = cur_out
+            else:
+                output = torch.cat([output,cur_out],dim=-1)
         output = torch.squeeze(output)
         output = self.dropout_1(output)
         output = self.igm_layer(encoder_output, output)
