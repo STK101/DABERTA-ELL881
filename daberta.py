@@ -357,10 +357,12 @@ class DescNet(nn.Module):
                                     centering_E=centering_E,
                                     centering_N=centering_N)
         self.igm_layer = IGM(dim=dim_model)
-        self.conv1 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (5,1), stride = 1,padding= (2,0),dtype = torch.half) for i in range(0,768)]
-        self.conv2 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (3,1), stride = 1,padding= (1,0),dtype = torch.half) for i in range(0,768)]
-        self.conv3 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN//2, kernel_size = (7,1), stride = 1,padding= (3,0),dtype = torch.half) for i in range(0,768)]
-        self.conv4 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN//2,out_channels = 1, kernel_size = (7,1), stride = 1,padding= (3,0),dtype = torch.half) for i in range(0,768)]
+
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.conv1 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (5,1), stride = 1,padding= (2,0),device=device dtype = torch.half) for i in range(0,768)]
+        self.conv2 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (3,1), stride = 1,padding= (1,0),device=device, dtype = torch.half) for i in range(0,768)]
+        self.conv3 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN//2, kernel_size = (7,1), stride = 1,padding= (3,0),device=device, dtype = torch.half) for i in range(0,768)]
+        self.conv4 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN//2,out_channels = 1, kernel_size = (7,1), stride = 1,padding= (3,0),device=device, dtype = torch.half) for i in range(0,768)]
         #self.fc = nn.Linear(CLAIM_DEFINITIONS_LEN * dim_model, dim_model)
         self.dropout_1 = nn.Dropout(0.2)
         self.dropout_2 = nn.Dropout(0.2)
