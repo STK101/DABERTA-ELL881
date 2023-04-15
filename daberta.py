@@ -396,7 +396,7 @@ class DescNet(nn.Module):
         defnet_out = torch.permute(defnet_out, (1,0,2,3))#12 X 200 X 1 inputs 
         output = None
         for i in range(0,768):
-            cur_out = torch.unsqueeze(defnet_out[:,:,:,i],-1)
+            cur_out = torch.unsqueeze(defnet_out[:,:,:,i],-1).float()
             cur_out =  (self.conv1)[i](cur_out)
             cur_out =  (self.conv2)[i](cur_out)
             cur_out =  (self.conv3)[i](cur_out)
