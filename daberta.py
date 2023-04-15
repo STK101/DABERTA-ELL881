@@ -393,7 +393,7 @@ class DescNet(nn.Module):
 
         defnet_out = torch.stack(defnet_out) # 12 X 200 X 768 => 5X768 kernel (2,0 padding) | 3X786 Kernel (1,0) padding | 2*(7X786 Kernel (3,0) padding) => 12 to 6 and 6 to 1 down filtering | 
         print("Size of defnet_out :" + ' '.join(map(str, list(defnet_out.size()))))
-        defnet_out = torch.permute(defnet_out, (1,0,2,3))#12 X 200 X 1 inputs 
+        defnet_out = torch.permute(defnet_out, (1,0,2,3)).float()#12 X 200 X 1 inputs 
         output = None
         for i in range(0,768):
             cur_out = (torch.unsqueeze(defnet_out[:,:,:,i],-1)).float()
