@@ -81,6 +81,7 @@ BASE_LEARNING_RATE = 4e-5
 CLAIM_DEFINITIONS_LEN = 12
 
 
+
 def set_random_seed(seed: int):
     """
     Helper function to seed experiment for reproducibility.
@@ -487,7 +488,7 @@ class DescNet(nn.Module):
 # ----------------------------------------------------- ROBERTA ENCODER -----------------------------------------------------
 
 class CustomRobertaEncoder(nn.Module):
-    def __init__(self, config,conv1_C, conv1_K):
+    def __init__(self, config,convC_arr, convK_arr):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([RobertaLayer(config) for _ in range(config.num_hidden_layers)])
