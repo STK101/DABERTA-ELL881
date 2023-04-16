@@ -342,7 +342,16 @@ class DescNet(nn.Module):
                  beta: Optional[float]=1.0,
                  scaling: Optional[bool]=False,
                  centering_E: Optional[bool]=False,
-                 centering_N: Optional[bool]=False):
+                 centering_N: Optional[bool]=False,
+                 conv1_C: Optional[int]=CLAIM_DEFINITIONS_LEN,
+                 conv1_K: Optional[int]=5,
+                 conv2_C: Optional[int]=CLAIM_DEFINITIONS_LEN,
+                 conv2_K: Optional[int]=3,
+                 conv3_C: Optional[int]=CLAIM_DEFINITIONS_LEN//2,
+                 conv3_K: Optional[int]=7,
+                 conv4_C: Optional[int]=1,
+                 conv4_K: Optional[int]=7,
+                 ):
         super(DescNet, self).__init__()
         self.def_encoder = TransformerEncoder(d_model=dim_model, 
                                               num_layers=2,
@@ -359,10 +368,10 @@ class DescNet(nn.Module):
         self.igm_layer = IGM(dim=dim_model)
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.conv1 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (5,1), stride = 1,padding= (2,0),device=device, dtype = torch.half) for i in range(0,768)]
-        self.conv2 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN, kernel_size = (3,1), stride = 1,padding= (1,0),device=device, dtype = torch.half) for i in range(0,768)]
-        self.conv3 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = CLAIM_DEFINITIONS_LEN//2, kernel_size = (7,1), stride = 1,padding= (3,0),device=device, dtype = torch.half) for i in range(0,768)]
-        self.conv4 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN//2,out_channels = 1, kernel_size = (7,1), stride = 1,padding= (3,0),device=device, dtype = torch.half) for i in range(0,768)]
+        self.conv1 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = conv1_C, kernel_size = (conv1_K,1), stride = 1,padding= (conv1_K//2,0),device=device, dtype = torch.half) for i in range(0,768)]
+        self.conv2 = [nn.Conv2d(in_channels = conv1_C,out_channels = conv2_C, kernel_size = (conv2_K,1), stride = 1,padding= (conv2_K//2,0),device=device, dtype = torch.half) for i in range(0,768)]
+        self.conv3 = [nn.Conv2d(in_channels = conv2_C,out_channels = conv3_C, kernel_size = (conv3_K,1), stride = 1,padding= (conv3_K//2,0),device=device, dtype = torch.half) for i in range(0,768)]
+        self.conv4 = [nn.Conv2d(in_channels = conv3_C,out_channels = 1, kernel_size = (conv4_K,1), stride = 1,padding= (conv4_K//2,0),device=device, dtype = torch.half) for i in range(0,768)]
         #self.fc = nn.Linear(CLAIM_DEFINITIONS_LEN * dim_model, dim_model)
         self.dropout_1 = nn.Dropout(0.2)
         self.dropout_2 = nn.Dropout(0.2)
@@ -493,7 +502,16 @@ class CustomRobertaEncoder(nn.Module):
                                 beta=1.0,
                                 scaling=True,
                                 centering_E=False,
-                                centering_N=False)
+                                centering_N=False,
+                                conv1_C=config.convC_arr[0],
+                                conv1_K=config.convK_arr[0],
+                                conv2_C=config.convC_arr[1],
+                                conv2_K=config.convK_arr[1],
+                                conv3_C=config.convC_arr[2],
+                                conv3_K=config.convK_arr[2],
+                                conv4_C=config.convC_arr[3],
+                                conv4_K=config.convK_arr[3],
+                                )
         # ======================================================================================= #
         
         
@@ -805,7 +823,7 @@ class CustomRobertaForTokenClassification(RobertaPreTrainedModel):
         super().__init__(config)
         self.num_labels = config.num_labels
 
-        self.roberta = CustomRobertaModel(config, add_pooling_layer=False)
+        self.roberta = CustomRobertaModel(config,add_pooling_layer=False)
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
@@ -893,7 +911,9 @@ class CustomRobertaCRF(nn.Module):
                  output_hidden_states=False,
                  output_attentions=False, 
                  batch_first=True,
-                 use_crf=True):
+                 use_crf=True,
+                 convC_arr =[CLAIM_DEFINITIONS_LEN,CLAIM_DEFINITIONS_LEN,CLAIM_DEFINITIONS_LEN//2,1],
+                 convK_arr = [5,3,7,7]):
         
         super(CustomRobertaCRF, self).__init__()
         self.num_labels = num_labels
@@ -903,7 +923,9 @@ class CustomRobertaCRF(nn.Module):
             model_name,
             num_labels=self.num_labels,
             output_hidden_states=output_hidden_states,
-            output_attentions=output_attentions
+            output_attentions=output_attentions,
+            convC_arr =convC_arr,
+            convK_arr = convK_arr
         )
         if self.use_crf:
             self.crf = CRF(self.num_labels, batch_first=self.batch_first)
@@ -1389,7 +1411,9 @@ if __name__ == "__main__":
                              output_hidden_states=False,
                              output_attentions=False, 
                              batch_first=True,
-                             use_crf=True)
+                             use_crf=True,
+                             convC_arr = [7,5,15,17],
+                             convK_arr = [24,36,12,1])
     print("Model loaded...\n")
     MODEL.to(DEVICE)
 
