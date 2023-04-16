@@ -487,7 +487,7 @@ class DescNet(nn.Module):
 # ----------------------------------------------------- ROBERTA ENCODER -----------------------------------------------------
 
 class CustomRobertaEncoder(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config,conv1_C, conv1_K):
         super().__init__()
         self.config = config
         self.layer = nn.ModuleList([RobertaLayer(config) for _ in range(config.num_hidden_layers)])
@@ -503,14 +503,14 @@ class CustomRobertaEncoder(nn.Module):
                                 scaling=True,
                                 centering_E=False,
                                 centering_N=False,
-                                conv1_C=config.convC_arr[0],
-                                conv1_K=config.convK_arr[0],
-                                conv2_C=config.convC_arr[1],
-                                conv2_K=config.convK_arr[1],
-                                conv3_C=config.convC_arr[2],
-                                conv3_K=config.convK_arr[2],
-                                conv4_C=config.convC_arr[3],
-                                conv4_K=config.convK_arr[3],
+                                conv1_C=convC_arr[0],
+                                conv1_K=convK_arr[0],
+                                conv2_C=convC_arr[1],
+                                conv2_K=convK_arr[1],
+                                conv3_C=convC_arr[2],
+                                conv3_K=convK_arr[2],
+                                conv4_C=convC_arr[3],
+                                conv4_K=convK_arr[3],
                                 )
         # ======================================================================================= #
         
@@ -652,12 +652,12 @@ class CustomRobertaModel(RobertaPreTrainedModel):
     _keys_to_ignore_on_load_missing = [r"position_ids"]
 
     # Copied from transformers.models.bert.modeling_bert.BertModel.__init__ with Bert->Roberta
-    def __init__(self, config, add_pooling_layer=True):
+    def __init__(self, config,convC_arr,convK_arr, add_pooling_layer=True):
         super().__init__(config)
         self.config = config
 
         self.embeddings = RobertaEmbeddings(config)
-        self.encoder = CustomRobertaEncoder(config)
+        self.encoder = CustomRobertaEncoder(config,convC_arr,convK_arr)
 
         self.pooler = RobertaPooler(config) if add_pooling_layer else None
 
@@ -819,11 +819,11 @@ class CustomRobertaForTokenClassification(RobertaPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
     _keys_to_ignore_on_load_missing = [r"position_ids"]
 
-    def __init__(self, config):
+    def __init__(self, config,convC_arr = [CLAIM_DEFINITIONS_LEN,CLAIM_DEFINITIONS_LEN,CLAIM_DEFINITIONS_LEN//2,1],convK_arr =  [5,3,7,7]):
         super().__init__(config)
         self.num_labels = config.num_labels
 
-        self.roberta = CustomRobertaModel(config,add_pooling_layer=False)
+        self.roberta = CustomRobertaModel(config,convC_arr,convK_arr,add_pooling_layer=False)
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
@@ -924,9 +924,9 @@ class CustomRobertaCRF(nn.Module):
             num_labels=self.num_labels,
             output_hidden_states=output_hidden_states,
             output_attentions=output_attentions,
-            convC_arr =convC_arr,
-            convK_arr = convK_arr
         )
+        (self.base_model).convC_arr = convC_arr
+        (self.base_model).convK_arr = convK_arr
         if self.use_crf:
             self.crf = CRF(self.num_labels, batch_first=self.batch_first)
 
