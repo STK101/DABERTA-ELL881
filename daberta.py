@@ -74,7 +74,7 @@ PAD_TO_MAX_LENGTH = True
 TRUNCATION = True
 
 BATCH_SIZE = 32
-MAX_EPOCHS = 10000
+MAX_EPOCHS = 10
 
 BASE_LEARNING_RATE = 4e-5
 
@@ -392,7 +392,7 @@ class DescNet(nn.Module):
             definition_input = self.def_encoder(definition_input)[-1]
             attention_out = self.attention_layer(query=encoder_output, 
                                                  key=definition_input,
-                                                 value=definition_input)
+                                                 value=encoder_output)#edit
             if (not remove):
                 #print("Size of attention_out :" + ' '.join(map(str, list(attention_out.size()))))
                 remove =True
