@@ -390,8 +390,8 @@ class DescNet(nn.Module):
 
         for definition_input in definition_inputs:
             definition_input = self.def_encoder(definition_input)[-1]
-            attention_out = self.attention_layer(query=encoder_output, 
-                                                 key=definition_input,
+            attention_out = self.attention_layer(query=definition_input, #edit
+                                                 key=encoder_output,#edit opposite them
                                                  value=encoder_output)#edit
             if (not remove):
                 #print("Size of attention_out :" + ' '.join(map(str, list(attention_out.size()))))
