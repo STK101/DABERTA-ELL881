@@ -369,10 +369,10 @@ class DescNet(nn.Module):
         self.igm_layer = IGM(dim=dim_model)
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.conv1 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = conv1_C, kernel_size = (conv1_K,1), stride = 1,padding= (conv1_K//2,0),device=device, dtype = torch.half) for i in range(0,768)]
-        self.conv2 = [nn.Conv2d(in_channels = conv1_C,out_channels = conv2_C, kernel_size = (conv2_K,1), stride = 1,padding= (conv2_K//2,0),device=device, dtype = torch.half) for i in range(0,768)]
-        self.conv3 = [nn.Conv2d(in_channels = conv2_C,out_channels = conv3_C, kernel_size = (conv3_K,1), stride = 1,padding= (conv3_K//2,0),device=device, dtype = torch.half) for i in range(0,768)]
-        self.conv4 = [nn.Conv2d(in_channels = conv3_C,out_channels = 1, kernel_size = (conv4_K,1), stride = 1,padding= (conv4_K//2,0),device=device, dtype = torch.half) for i in range(0,768)]
+        self.conv1 = [nn.Conv2d(in_channels = CLAIM_DEFINITIONS_LEN,out_channels = conv1_C, kernel_size = (conv1_K,1), stride = 1,padding= (conv1_K//2,0),device=device, dtype = torch.float) for i in range(0,768)]
+        self.conv2 = [nn.Conv2d(in_channels = conv1_C,out_channels = conv2_C, kernel_size = (conv2_K,1), stride = 1,padding= (conv2_K//2,0),device=device, dtype = torch.float) for i in range(0,768)]
+        self.conv3 = [nn.Conv2d(in_channels = conv2_C,out_channels = conv3_C, kernel_size = (conv3_K,1), stride = 1,padding= (conv3_K//2,0),device=device, dtype = torch.float) for i in range(0,768)]
+        self.conv4 = [nn.Conv2d(in_channels = conv3_C,out_channels = 1, kernel_size = (conv4_K,1), stride = 1,padding= (conv4_K//2,0),device=device, dtype = torch.float) for i in range(0,768)]
         #self.fc = nn.Linear(CLAIM_DEFINITIONS_LEN * dim_model, dim_model)
         self.dropout_1 = nn.Dropout(0.2)
         self.dropout_2 = nn.Dropout(0.2)
