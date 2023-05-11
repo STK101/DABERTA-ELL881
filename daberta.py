@@ -1295,7 +1295,8 @@ def val_epoch(model,
 
 def test_epoch(model,
                tokenizer,
-               data_loader):
+               data_loader,
+               mapList):
     model.eval()
     
     epoch_val_loss = 0.0
@@ -1329,7 +1330,7 @@ def test_epoch(model,
     gc.collect()
     torch.cuda.empty_cache() 
         
-    return y_true, y_pred
+    return getPredictions(y_true, y_pred,mapList=mapList)[3]
 
 
 
@@ -1454,7 +1455,8 @@ if __name__ == "__main__":
     }
     predictions = test_epoch(model=MODEL,
           tokenizer=TOKENIZER,
-          data_loader=test_dataset)
+          data_loader=test_dataset,
+          mapList= test_word_ids['train_word_ids'])
     # train(model=MODEL,
     #       tokenizer=TOKENIZER,
     #       train_data_loader=train_dataset,
@@ -1462,7 +1464,31 @@ if __name__ == "__main__":
     #       data_word_ids=data_word_ids,
     #       val_data_loader=val_dataset,
     #       val_word_ids= val_word_ids)
-    labels = np.array(predictions[1])
+
+    labels = np.array(predictions)
+    start_labs = []
+    end_labs = []
+    for x in labels:
+        start = []
+        end = []
+        y = 0
+        started = False
+        while (y < len(x)):
+            if (x[y]==3):
+                start.append(y)
+                started = True
+            elif (x[y] == 1 and started):
+                end.append(y-1)
+                started = False
+            y += 1
+        if (len(start) > len(end)):
+            end.append(len(x)-1)
+        assert(len(start) == len(end))
+        start_labs.append(start)
+        end_labs.append(end)
+    df = pd.read_csv("dataset/test_stripped.csv")
+    df["span_start_index"] = start_labs
+    df["span_end_index"] = end_labs
     print(labels.shape)
     print(labels)
     # print("Model Trained!")
