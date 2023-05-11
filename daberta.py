@@ -1474,10 +1474,10 @@ if __name__ == "__main__":
         y = 0
         started = False
         while (y < len(x)):
-            if (x[y]>=2 and not started ):
+            if (x[y]>=1 and not started ):
                 start.append(y)
                 started = True
-            elif (x[y] == 1 and started):
+            elif (x[y] == 0 and started):
                 end.append(y-1)
                 started = False
             y += 1
