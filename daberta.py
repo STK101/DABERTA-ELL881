@@ -1407,16 +1407,20 @@ def train(model,
 
 if __name__ == "__main__":
 
-    MODEL = CustomRobertaCRF(num_labels=4,
-                             model_name='roberta-base', 
-                             output_hidden_states=False,
-                             output_attentions=False, 
-                             batch_first=True,
-                             use_crf=True,
-                             convC_arr = [7,5,15,17],
-                             convK_arr = [24,36,12,1])
+    # MODEL = CustomRobertaCRF(num_labels=4,
+    #                          model_name='roberta-base', 
+    #                          output_hidden_states=False,
+    #                          output_attentions=False, 
+    #                          batch_first=True,
+    #                          use_crf=True,
+    #                          convC_arr = [7,5,15,17],
+    #                          convK_arr = [24,36,12,1])
+    print('Enter model absolute path:')
+    model_path = input()
+    MODEL = torch.load(model_path)
     print("Model loaded...\n")
-    MODEL.to(DEVICE)
+
+    # MODEL.to(DEVICE)
 
     TOKENIZER = RobertaTokenizerFast.from_pretrained('roberta-base', add_prefix_space=True)
     print("Tokenizer loaded...\n")
@@ -1424,35 +1428,44 @@ if __name__ == "__main__":
     
     # ------------------------------ READ DATASET ------------------------------ #
     
-    train_dataset, train_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'train.csv', 
-                                                       definition_path='dataset/definition-encodings-roberta.pkl', 
-                                                       tokenizer=TOKENIZER)
-    print("\nTraining Data Loaded...")
-    val_dataset,val_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'dev.csv', 
-                                                       definition_path='dataset/definition-encodings-roberta.pkl', 
-                                                       tokenizer=TOKENIZER)
+    # train_dataset, train_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'train.csv', 
+    #                                                    definition_path='dataset/definition-encodings-roberta.pkl', 
+    #                                                    tokenizer=TOKENIZER)
+    # print("\nTraining Data Loaded...")
+    # val_dataset,val_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'dev.csv', 
+    #                                                    definition_path='dataset/definition-encodings-roberta.pkl', 
+    #                                                    tokenizer=TOKENIZER)
     print("\nValidation Data Loaded...")
+    test_dataset,test_word_ids = set_up_data_loader(text_path=INPUT_PATH + 'test_stripped.csv', 
+                                                       definition_path='dataset/definition-encodings-roberta.pkl', 
+                                                       tokenizer=TOKENIZER)
     gc.collect()  
     
     # ------------------------------ TRAINING SETUP ------------------------------ #
         
-    data_word_ids = {
-        'train_word_ids': train_word_ids
+    # data_word_ids = {
+    #     'train_word_ids': train_word_ids
+    # }
+    # val_word_ids = {
+    #     'train_word_ids': val_word_ids
+    # }
+    test_word_ids = {
+        'train_word_ids': test_word_ids
     }
-    val_word_ids = {
-        'train_word_ids': val_word_ids
-    }
-
-    
-    train(model=MODEL,
+    predictions = test_epoch(model=MODEL,
           tokenizer=TOKENIZER,
-          train_data_loader=train_dataset,
-          base_learning_rate=BASE_LEARNING_RATE,
-          data_word_ids=data_word_ids,
-          val_data_loader=val_dataset,
-          val_word_ids= val_word_ids)
-    
-    print("Model Trained!")
+          data_loader=test_dataset)
+    # train(model=MODEL,
+    #       tokenizer=TOKENIZER,
+    #       train_data_loader=train_dataset,
+    #       base_learning_rate=BASE_LEARNING_RATE,
+    #       data_word_ids=data_word_ids,
+    #       val_data_loader=val_dataset,
+    #       val_word_ids= val_word_ids)
+    labels = np.array(predictions[1])
+    print(labels.shape)
+    print(labels)
+    # print("Model Trained!")
     
     gc.collect()
     torch.cuda.empty_cache() 
