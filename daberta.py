@@ -1466,29 +1466,26 @@ if __name__ == "__main__":
     #       val_word_ids= val_word_ids)
 
     labels = np.array(predictions)
-    # start_labs = []
-    # end_labs = []
-    # for x in labels:
-    #     start = []
-    #     end = []
-    #     y = 0
-    #     started = False
-    #     while (y < len(x)):
-    #         if (x[y]>=1 and not started ):
-    #             start.append(y)
-    #             started = True
-    #         elif (x[y] == 0 and started):
-    #             end.append(y-1)
-    #             started = False
-    #         y += 1
-    #     if (len(start) > len(end)):
-    #         end.append(len(x)-1)
-    #     assert(len(start) == len(end))
-    #     start_labs.append(start)
-    #     end_labs.append(end)
-    # df = pd.read_csv("dataset/test_stripped.csv")
-    # df["span_start_index"] = start_labs
-    # df["span_end_index"] = end_labs
+    start_labs = []
+    end_labs = []
+    for x in labels:
+        start = []
+        end = []
+        for y in range(0,len(x)):
+            if (y == 0):
+                start.append(x[y])
+            else:
+                if(x[y] != x[y-1] + 1):
+                    end.append(x[y-1])
+                    start.append(x[y])
+        if(len(start) > len(end)):
+            end.append(x[-1])
+        assert(len(start) == len(end))
+        start_labs.append(start)
+        end_labs.append(end)
+    df = pd.read_csv("dataset/test_stripped.csv")
+    df["span_start_index"] = start_labs
+    df["span_end_index"] = end_labs
     print(labels.shape)
     print(labels)
     # print("Model Trained!")
