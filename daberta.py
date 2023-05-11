@@ -1330,7 +1330,7 @@ def test_epoch(model,
     gc.collect()
     torch.cuda.empty_cache() 
         
-    return getPredictions(y_true, y_pred,mapList=mapList)[3]
+    return getPredictions(y_true, y_pred,mapList=mapList)[1]
 
 
 
@@ -1466,26 +1466,26 @@ if __name__ == "__main__":
     #       val_word_ids= val_word_ids)
 
     labels = np.array(predictions)
-    start_labs = []
-    end_labs = []
-    for x in labels:
-        start = []
-        end = []
-        y = 0
-        started = False
-        while (y < len(x)):
-            if (x[y]>=1 and not started ):
-                start.append(y)
-                started = True
-            elif (x[y] == 0 and started):
-                end.append(y-1)
-                started = False
-            y += 1
-        if (len(start) > len(end)):
-            end.append(len(x)-1)
-        assert(len(start) == len(end))
-        start_labs.append(start)
-        end_labs.append(end)
+    # start_labs = []
+    # end_labs = []
+    # for x in labels:
+    #     start = []
+    #     end = []
+    #     y = 0
+    #     started = False
+    #     while (y < len(x)):
+    #         if (x[y]>=1 and not started ):
+    #             start.append(y)
+    #             started = True
+    #         elif (x[y] == 0 and started):
+    #             end.append(y-1)
+    #             started = False
+    #         y += 1
+    #     if (len(start) > len(end)):
+    #         end.append(len(x)-1)
+    #     assert(len(start) == len(end))
+    #     start_labs.append(start)
+    #     end_labs.append(end)
     df = pd.read_csv("dataset/test_stripped.csv")
     df["span_start_index"] = start_labs
     df["span_end_index"] = end_labs
