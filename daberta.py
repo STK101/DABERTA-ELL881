@@ -2,7 +2,7 @@
 # File: daberta.py
 
 # ----------------------------------------------------- IMPORTS -----------------------------------------------------
-
+import sys
 import os
 import numpy as np
 import pandas as pd
@@ -1415,8 +1415,8 @@ if __name__ == "__main__":
     #                          use_crf=True,
     #                          convC_arr = [7,5,15,17],
     #                          convK_arr = [24,36,12,1])
-    print('Enter model absolute path:')
-    model_path = input()
+    # print('Enter model absolute path:')
+    model_path = str(sys.argv[1])#input()
     MODEL = torch.load(model_path)
     print("Model loaded...\n")
 
