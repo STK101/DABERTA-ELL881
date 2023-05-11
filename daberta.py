@@ -1486,12 +1486,12 @@ if __name__ == "__main__":
     #     assert(len(start) == len(end))
     #     start_labs.append(start)
     #     end_labs.append(end)
-    df = pd.read_csv("dataset/test_stripped.csv")
-    df["span_start_index"] = start_labs
-    df["span_end_index"] = end_labs
+    # df = pd.read_csv("dataset/test_stripped.csv")
+    # df["span_start_index"] = start_labs
+    # df["span_end_index"] = end_labs
     print(labels.shape)
     print(labels)
     # print("Model Trained!")
-    df.to_csv("final.csv")
+    # df.to_csv("final.csv")
     gc.collect()
     torch.cuda.empty_cache() 
