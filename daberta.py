@@ -1489,6 +1489,6 @@ if __name__ == "__main__":
     print(labels.shape)
     print(labels)
     # print("Model Trained!")
-    # df.to_csv("final.csv")
+    df.to_csv("final.csv")
     gc.collect()
     torch.cuda.empty_cache() 
